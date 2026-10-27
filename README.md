@@ -33,7 +33,7 @@ Three small hooks in standard-library Python. No model calls, no network, no tel
 ## Install
 
 ```
-/plugin marketplace add <this repository>
+/plugin marketplace add theory-skills/verify-ledger
 /plugin install verify-ledger
 ```
 
