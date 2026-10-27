@@ -58,4 +58,13 @@ Ledgers live in the plugin data folder (`CLAUDE_PLUGIN_DATA`) and are deleted af
 python3 plugins/verify-ledger/scripts/verify_ledger.py selftest
 ```
 
-MIT licence.
+## Related: design gate pro
+
+verify-ledger checks that the agent ran the tests. design gate pro, from the same publisher, checks what it built. It blocks a turn while new UI fails WCAG A, and scores each change against design and code rubrics, PASS or FAIL per cluster with evidence, on your own Claude Code plan. It is a monthly subscription with a 14-day free trial, sold through Polar:
+
+- [Per developer](https://buy.polar.sh/polar_cl_pHHOQNaAcCxFzjTgeG2u0kgQlUOZbc8GIxMpU1EZHTG): EUR 9 or USD 9 a month.
+- [Per repository](https://buy.polar.sh/polar_cl_1EnpRVxPo4JtcQrS1uu1roxBMo8664dIAtFPP12uWZV): EUR 19 or USD 19 a month.
+
+## Licence and support
+
+MIT licence. verify-ledger is free and stays free. If it saved you a bad merge, payment is optional, and [Ko-fi](https://ko-fi.com/juukk) is where it goes.
