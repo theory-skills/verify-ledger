@@ -28,7 +28,8 @@ WRITES = re.compile(r"(^|[^\d&>])>>?\s*(?!\s*(/dev/null|&|\$null))\S|\bsed\s+(-\
                     r"(^|[;&|]\s*|\s)(mv|cp|rm|touch|patch|truncate)\s|\bgit\s+(apply|checkout|restore|reset|"
                     r"stash\s+pop|merge|rebase|pull|cherry-pick)\b")
 TEST_CLAIM = re.compile(r"\btests?\s+(now\s+|all\s+|still\s+)?(pass|passes|passed|passing|are\s+passing|are\s+green|"
-                        r"succeed\w*)\b|\b(all|every)\s+(\w+\s+){0,2}tests?\s+(\w+\s+)?pass|\b(suite|build|ci)\s+(is\s+)?"
+                        r"succeed\w*)\b|\btests?\b[^.;]{0,60}?\b(they|all\s+of\s+them)\s+(all\s+)?(pass|passes|passed|"
+                        r"are\s+(passing|green))\b|\b(all|every)\s+(\w+\s+){0,2}tests?\s+(\w+\s+)?pass|\b(suite|build|ci)\s+(is\s+)?"
                         r"(green|passes|passing)\b", re.I)
 CHECK_CLAIM = re.compile(r"\bverified\b|\bconfirmed\s+(working|passing|fixed)\b|\bworks\s+now\b|✅", re.I)  # generic words
 DONE_CLAIM = re.compile(r"\b(done|fixed|completed?|resolved|ready\s+to\s+(merge|ship))\b", re.I)
@@ -36,6 +37,8 @@ HEDGE = re.compile(r"n't\b|\b(not|never|unverified|untested|should|would|could|m
                    r"whether|need\s+to|please)\b|\bno\s+(tests?|test\s+runs?|runs?|way)\b|\bwithout\s+(running|"
                    r"testing|verify\w*|checking|a\s+test)\b|\b(will|may)\s+(\w+\s+)?(pass|verify|work|be\s+(green|done|"
                    r"fixed|verified))\b|\?", re.I)
+CONDITION = re.compile(r"^\W*(if|unless)\b|^\W*(once|when)\b(?![^,]*\b(ran|did|had|was|were|fixed|passed)\b)",
+                       re.I)  # "If the tests pass, we are done." is a plan; "When I ran them, they passed." is a report
 
 
 def data_dir():
@@ -87,6 +90,7 @@ def hides_exit(cmd):
     pipe without pipefail. A zero exit from such a command says nothing about the tests."""
     ends = [m.end() for p in runner_patterns() for m in p.finditer(cmd)]
     tail = cmd[max(ends):] if ends else ""
+    tail = re.sub(r"\|\|\s*\(?\s*(exit|return)(\s+([1-9]\d*|\$\?))?\s*\)?\s*(#.*)?$", "", tail)  # `|| exit 1` keeps it
     return bool(re.search(r"\|\||[;\n]\s*\S|&\s*$", tail)) or (has_pipe(tail) and "pipefail" not in cmd)
 
 
@@ -196,18 +200,23 @@ def claim(text):
     """'all' (all tests pass), 'test' (tests pass), 'check' (verified, works now), 'done' (done / fixed) or None. A sentence that hedges
     or negates is not a claim: "not yet verified", "should pass", "I did not run the tests"."""
     found = None
-    for s in re.split(r"(?<=[.!?\n])\s+|\n", prose(text)):
-        if HEDGE.search(s):
-            continue
-        m = TEST_CLAIM.search(s)
-        if m:
-            if re.search(r"\b(all|every|full|whole|entire)\b", s, re.I):
-                return "all"
-            found = "test"
-        elif found in (None, "done") and CHECK_CLAIM.search(s):
-            found = "check"
-        elif found is None and DONE_CLAIM.search(s):
-            found = "done"
+    for sentence in re.split(r"(?<=[.!?\n])\s+|\n", prose(text)):
+        # a test claim stands in its own clause ("All tests pass; I haven't pushed."); done and verified words need
+        # the whole sentence unhedged ("Done, but untested." is candour, not a claim)
+        hedged = HEDGE.search(sentence) or CONDITION.search(sentence)
+        for s in re.split(r";|,\s*but\b", sentence):
+            if HEDGE.search(s) or CONDITION.search(s):
+                continue
+            if TEST_CLAIM.search(s):
+                if re.search(r"\b(all|every|full|whole|entire)\b", s, re.I):
+                    return "all"
+                found = "test"
+            elif hedged:
+                continue
+            elif found in (None, "done") and CHECK_CLAIM.search(s):
+                found = "check"
+            elif found is None and DONE_CLAIM.search(s):
+                found = "done"
     return found
 
 
@@ -349,11 +358,17 @@ def selftest():
                  ("Fixed the parser.", "done"), ("Done ✅", "check"), ("The full suite is green.", "all"),
                  ("All 12 tests pass with no failures.", "all"), ("All tests pass without errors.", "all"),
                  ("All tests pass, and I will summarize next.", "all"), ("Fixed it, and all tests pass if you use py3.", "all"),
-                 ("Verified on the box.", "check")):
+                 ("Verified on the box.", "check"), ("All tests pass; I haven't pushed.", "all"),
+                 ("Tests pass, but I did not update the docs.", "test"), ("I ran the tests and they pass.", "test"),
+                 ("I ran the tests and they all passed.", "all"), ("When I ran the tests, they passed.", "test"),
+                 ("Once I fixed it, the tests pass.", "test")):
         assert claim(t) == k, (t, claim(t))
     for t in ("Tests not yet verified.", "This should pass.", "I did not run the tests.", "Will verify after lunch.",
               "Want me to run the tests?", "Ran `pytest` which printed `5 passed`.", "Here is the plan.", "",
-              "No tests were run.", "Done without running the tests.", "The tests will pass once CI picks it up."):
+              "No tests were run.", "Done without running the tests.", "The tests will pass once CI picks it up.",
+              "If the tests pass, we are done.", "Once tests pass, it is fixed.", "I ran the tests and they did not pass.",
+              "Done, but untested.", "Done; I did not test it.",
+              "I can't say tests pass, but the build compiles."):
         assert claim(t) is None, t
     # the real-session false positive (10-27): an honest refusal that quotes the asked-for sentence
     assert claim('The test run failed, so I can\'t reply with the required sentence "All tests pass." Output:') is None
@@ -395,9 +410,11 @@ def selftest():
     bash("s11", 'set -o pipefail; python -m unittest -q 2>&1 | tail -3; echo "exit=$?"')
     r = stops("s11", "Tests pass.")
     assert "hidden" in r["reason"] and "exit=" not in r["reason"], r
-    for c in ("pytest || true", "npm test | tail", "pytest -q; echo done", "pytest\necho done"):
+    for c in ("pytest || true", "npm test | tail", "pytest -q; echo done", "pytest\necho done", "pytest || exit 0",
+              "pytest || exit 1; echo done"):
         assert hides_exit(c), c
-    for c in ("pytest -q", "set -o pipefail; pytest | tail", "pytest && echo ok", "cd x; pytest"):
+    for c in ("pytest -q", "set -o pipefail; pytest | tail", "pytest && echo ok", "cd x; pytest", "pytest || exit 1",
+              "pytest || exit", "pytest || exit 1 # stop here", "pytest || (exit 1)", "pytest || exit $?"):
         assert not hides_exit(c), c
     post({"session_id": "s10", "tool_name": "Edit", "tool_input": {"file_path": "a"}, "tool_response": {"interrupted": True}})
     assert events("s10") is None
