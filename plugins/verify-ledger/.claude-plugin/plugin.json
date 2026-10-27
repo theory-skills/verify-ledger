@@ -1,0 +1,8 @@
+{
+  "name": "verify-ledger",
+  "description": "Stops 'tests pass' and 'done' claims that no fresh test run backs: pipefail on piped test runs, a local run-vs-edit ledger, and a one-time stop gate. Local, no network, no model calls.",
+  "version": "0.1.0",
+  "author": { "name": "theory-skills", "url": "https://gitlab.com/theory-skills" },
+  "license": "MIT",
+  "keywords": ["hooks", "testing", "verification", "pipefail", "quality-gate"]
+}

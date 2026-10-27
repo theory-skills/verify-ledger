@@ -1,0 +1,14 @@
+{
+  "name": "verify-ledger",
+  "owner": { "name": "theory-skills", "url": "https://gitlab.com/theory-skills" },
+  "description": "verify-ledger hooks for Claude Code",
+  "plugins": [
+    {
+      "name": "verify-ledger",
+      "source": "./plugins/verify-ledger",
+      "description": "Stops 'tests pass' and 'done' claims that no fresh test run backs: pipefail on piped test runs, a local run-vs-edit ledger, and a one-time stop gate.",
+      "version": "0.1.0",
+      "keywords": ["hooks", "testing", "verification", "pipefail", "quality-gate"]
+    }
+  ]
+}
