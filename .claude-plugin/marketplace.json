@@ -1,6 +1,6 @@
 {
   "name": "verify-ledger",
-  "owner": { "name": "theory-skills", "url": "https://gitlab.com/theory-skills" },
+  "owner": { "name": "theory-skills", "url": "https://github.com/theory-skills" },
   "description": "verify-ledger hooks for Claude Code",
   "plugins": [
     {

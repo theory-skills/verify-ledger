@@ -37,7 +37,13 @@ Three small hooks in standard-library Python. No model calls, no network, no tel
 /plugin install verify-ledger
 ```
 
-Needs `python3` on PATH. On Windows, Python from python.org or the Microsoft Store installs `python3`; if only `python` exists, add a `python3` alias. Without it every hook reports a hook error and the plugin does nothing; your session still works.
+The rules alone, as a skill any agent can read (the text only, not the hooks):
+
+```
+npx skills add theory-skills/verify-ledger
+```
+
+The hooks need `python3` on PATH. On Windows, Python from python.org or the Microsoft Store installs `python3`; if only `python` exists, add a `python3` alias. Without it every hook reports a hook error and the plugin does nothing; your session still works.
 
 ## Limits
 

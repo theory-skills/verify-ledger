@@ -2,3 +2,5 @@ __pycache__/
 *.pyc
 CLAUDE-SECURITY-*/
 spec.md
+reach-define.md
+directory-form.md
