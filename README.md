@@ -70,7 +70,7 @@ python3 plugins/verify-ledger/scripts/verify_ledger.py selftest
 
 ## Related: design gate pro
 
-A paid companion, design gate pro, checks what the agent built. It is not on sale at the moment.
+verify-ledger checks that the agent ran the tests. design gate pro, from the same publisher, checks what it built. When new UI fails WCAG A it sends the turn back with the list of failures, up to twice, and scores each change against design and code rubrics, PASS or FAIL per cluster with evidence, on your own Claude Code plan. It is advisory: you decide what ships. It is EUR 9 or USD 9 a month per developer, with a 14-day free trial; after day 14 it is charged monthly until you cancel, and cancelling before then costs nothing. Sold through Polar: [subscribe](https://buy.polar.sh/polar_cl_JX7JNCn0L21QL7pK6jRD3wCAiJmQqmSdb485x0NbLpD).
 
 ## Licence and support
 
