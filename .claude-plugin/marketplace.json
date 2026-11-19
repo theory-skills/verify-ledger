@@ -8,7 +8,7 @@
       "source": "./plugins/verify-ledger",
       "description": "Stops 'tests pass' and 'done' claims that no fresh test run backs: pipefail on piped test runs, a local run-vs-edit ledger, and a one-time stop gate.",
       "version": "0.1.0",
-      "keywords": ["hooks", "testing", "verification", "pipefail", "quality-gate"]
+      "keywords": ["hooks", "testing", "verification", "pipefail", "quality-gate", "stop-hook", "done-gate", "completion-gate"]
     }
   ]
 }

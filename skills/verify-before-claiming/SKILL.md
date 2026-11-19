@@ -1,6 +1,6 @@
 ---
 name: verify-before-claiming
-description: Before ending a turn with "tests pass", "fixed" or "done", re-run the tests after the last edit and report that run; pipe test runs with pipefail; say plainly when nothing was verified.
+description: Prevents false completion. Before ending a turn with "tests pass", "fixed" or "done", re-run the tests after the last edit and report that run; pipe test runs with pipefail; say plainly when nothing was verified.
 ---
 
 # Verify before claiming

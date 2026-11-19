@@ -4,7 +4,7 @@
 
 > “says "fixed," commits it — but never verifies the fix actually works in the real environment” ([claude-code issue 37818](https://github.com/anthropics/claude-code/issues/37818))
 
-verify-ledger is a Claude Code plugin that asks the agent, once, to re-run the tests when it ends a turn with "all tests pass" or "done" and its own session shows no passing test run since the last edit.
+verify-ledger is a Claude Code plugin that asks the agent, once, to re-run the tests when it ends a turn with "all tests pass" or "done" and its own session shows no passing test run since the last edit. It works as a stop hook and done gate (a completion gate): when a claim has no passing run behind it, it asks the agent to verify before it stops, once.
 
 Three small hooks in standard-library Python. No model calls, no network, no telemetry.
 
@@ -49,6 +49,10 @@ npx skills add theory-skills/verify-ledger
 
 The hooks need `python3` on PATH. On Windows, Python from python.org or the Microsoft Store installs `python3`; if only `python` exists, add a `python3` alias. Without it every hook reports a hook error and the plugin does nothing; your session still works.
 
+## Related: design gate pro
+
+verify-ledger checks that the agent ran the tests. design gate pro, from the same publisher, checks what it built. When new UI fails WCAG A it sends the turn back with the list of failures, up to twice, and scores each change against design and code rubrics, PASS or FAIL per cluster with evidence, on your own Claude Code plan. It is advisory: you decide what ships. It is EUR 9 or USD 9 a month per developer, with a 14-day free trial; after day 14 it is charged monthly until you cancel, and cancelling before then costs nothing. Sold through Polar: [subscribe](https://buy.polar.sh/polar_cl_JX7JNCn0L21QL7pK6jRD3wCAiJmQqmSdb485x0NbLpD).
+
 ## Limits
 
 - Claims are found by English phrase patterns, not by understanding. An unusual wording can slip through; a rare honest one can be asked once.
@@ -67,10 +71,6 @@ Ledgers live in the plugin data folder (`CLAUDE_PLUGIN_DATA`) and are deleted af
 ```
 python3 plugins/verify-ledger/scripts/verify_ledger.py selftest
 ```
-
-## Related: design gate pro
-
-verify-ledger checks that the agent ran the tests. design gate pro, from the same publisher, checks what it built. When new UI fails WCAG A it sends the turn back with the list of failures, up to twice, and scores each change against design and code rubrics, PASS or FAIL per cluster with evidence, on your own Claude Code plan. It is advisory: you decide what ships. It is EUR 9 or USD 9 a month per developer, with a 14-day free trial; after day 14 it is charged monthly until you cancel, and cancelling before then costs nothing. Sold through Polar: [subscribe](https://buy.polar.sh/polar_cl_JX7JNCn0L21QL7pK6jRD3wCAiJmQqmSdb485x0NbLpD).
 
 ## Licence and support
 

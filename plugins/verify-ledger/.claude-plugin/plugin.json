@@ -4,5 +4,5 @@
   "version": "0.1.0",
   "author": { "name": "theory-skills", "url": "https://github.com/theory-skills" },
   "license": "MIT",
-  "keywords": ["hooks", "testing", "verification", "pipefail", "quality-gate"]
+  "keywords": ["hooks", "testing", "verification", "pipefail", "quality-gate", "stop-hook", "done-gate", "completion-gate"]
 }
